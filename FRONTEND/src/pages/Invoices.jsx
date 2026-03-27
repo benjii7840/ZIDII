@@ -1,7 +1,114 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import Layout from "../components/Layout";
+import { api } from "../utils/api";
 
 const Invoices = () => {
-  return <div></div>;
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get("/api/invoices").then((data) => {
+      setInvoices(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const statusColor = {
+    draft: "text-gray-400 bg-gray-500/10 border-gray-500/20",
+    sent: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+    paid: "text-green-400 bg-green-500/10 border-green-500/20",
+  };
+
+  return (
+    <Layout>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-white">Invoices</h1>
+          <button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+            + New Invoice
+          </button>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
+                  Client
+                </th>
+                <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
+                  Amount
+                </th>
+                <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
+                  Status
+                </th>
+                <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
+                  Due Date
+                </th>
+                <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="text-center text-gray-500 py-12">
+                    Loading...
+                  </td>
+                </tr>
+              ) : invoices.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center text-gray-500 py-12">
+                    No invoices yet. Create your first one!
+                  </td>
+                </tr>
+              ) : (
+                invoices.map((invoice) => (
+                  <tr
+                    key={invoice._id}
+                    className="border-b border-white/5 hover:bg-white/3 transition"
+                  >
+                    <td className="px-6 py-4">
+                      <p className="text-white font-medium">
+                        {invoice.clientName}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        {invoice.clientEmail}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4 text-white font-medium">
+                      KES {invoice.total?.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`text-xs font-medium px-3 py-1 rounded-full border ${statusColor[invoice.status]}`}
+                      >
+                        {invoice.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-sm">
+                      {invoice.dueDate
+                        ? new Date(invoice.dueDate).toLocaleDateString()
+                        : "--"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button className="text-gray-400 hover:text-purple-400 text-sm transition mr-3">
+                        View
+                      </button>
+                      <button className="text-gray-400 hover:text-red-400 text-sm transition">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Layout>
+  );
 };
 
 export default Invoices;
