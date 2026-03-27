@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { api } from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
+const navigate = useNavigate();
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,10 @@ const Invoices = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-white">Invoices</h1>
-          <button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+          <button
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+            onClick={() => navigate("/invoices/new")}
+          >
             + New Invoice
           </button>
         </div>
