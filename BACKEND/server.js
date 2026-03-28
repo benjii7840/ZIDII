@@ -16,10 +16,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/test", (req, res) => {
-  res.json({ message: "Server is working" });
-});
-
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
@@ -30,6 +26,10 @@ app.use("/api/invoices", invoiceRouter);
 app.use("/api/expenses", expenseRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/ai", aiRouter);
+
+app.get("/test", (req, res) => {
+  res.json({ message: "Server is working" });
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
