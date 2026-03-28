@@ -22,10 +22,10 @@ mongoose
   .catch((err) => console.log("Connection error:", err));
 
 app.use("/api/auth", authRouter);
-app.use("/api/invoices", invoiceRouter);
-app.use("/api/expenses", expenseRouter);
-app.use("/api/dashboard", dashboardRouter);
-app.use("/api/ai", aiRouter);
+//app.use("/api/invoices", invoiceRouter);
+//app.use("/api/expenses", expenseRouter);
+//app.use("/api/dashboard", dashboardRouter);
+//app.use("/api/ai", aiRouter);
 
 app.get("/test", (req, res) => {
   res.json({ message: "Server is working" });
