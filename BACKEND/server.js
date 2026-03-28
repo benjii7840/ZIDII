@@ -21,8 +21,8 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("Connection error:", err));
 
-app.use("/api/auth", authRouter);
-//app.use("/api/invoices", invoiceRouter);
+//app.use("/api/auth", authRouter);
+app.use("/api/invoices", invoiceRouter);
 //app.use("/api/expenses", expenseRouter);
 //app.use("/api/dashboard", dashboardRouter);
 //app.use("/api/ai", aiRouter);
