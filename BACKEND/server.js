@@ -6,6 +6,7 @@ import invoiceRouter from "./routes/invoices.js";
 import expenseRouter from "./routes/expenses.js";
 import dashboardRouter from "./routes/dashboard.js";
 import aiRouter from "./routes/ai.js";
+import mongoose from "mongoose";
 
 dotenv.config();
 
