@@ -9,6 +9,11 @@ import aiRouter from "./routes/ai.js";
 
 dotenv.config();
 
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log("Connection error:", err));
+
 const app = express();
 app.use(cors());
 app.use(express.json());
