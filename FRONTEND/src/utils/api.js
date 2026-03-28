@@ -2,6 +2,17 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5002";
 
 const getToken = () => localStorage.getItem("token");
 
+// 🔥 Safe response handler
+const handleResponse = async (response) => {
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Invalid JSON response: " + text);
+  }
+};
+
 export const api = {
   get: async (endpoint) => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -9,7 +20,12 @@ export const api = {
         Authorization: `Bearer ${getToken()}`,
       },
     });
-    return response.json();
+
+    if (!response.ok) {
+      throw new Error(`GET ${endpoint} failed: ${response.status}`);
+    }
+
+    return handleResponse(response);
   },
 
   post: async (endpoint, data) => {
@@ -21,7 +37,12 @@ export const api = {
       },
       body: JSON.stringify(data),
     });
-    return response.json();
+
+    if (!response.ok) {
+      throw new Error(`POST ${endpoint} failed: ${response.status}`);
+    }
+
+    return handleResponse(response);
   },
 
   put: async (endpoint, data) => {
@@ -33,7 +54,12 @@ export const api = {
       },
       body: JSON.stringify(data),
     });
-    return response.json();
+
+    if (!response.ok) {
+      throw new Error(`PUT ${endpoint} failed: ${response.status}`);
+    }
+
+    return handleResponse(response);
   },
 
   delete: async (endpoint) => {
@@ -43,6 +69,11 @@ export const api = {
         Authorization: `Bearer ${getToken()}`,
       },
     });
-    return response.json();
+
+    if (!response.ok) {
+      throw new Error(`DELETE ${endpoint} failed: ${response.status}`);
+    }
+
+    return handleResponse(response);
   },
 };
