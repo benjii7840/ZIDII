@@ -14,6 +14,8 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("Connection error:", err));
 
+console.log("MONGO_URI starts with:", process.env.MONGO_URI?.substring(0, 20));
+
 const app = express();
 app.use(cors());
 app.use(express.json());
