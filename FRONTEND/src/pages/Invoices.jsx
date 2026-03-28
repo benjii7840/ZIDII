@@ -124,13 +124,13 @@ const Invoices = () => {
                     <td className="px-6 py-4 flex items-center gap-3">
                       <button
                         onClick={() => handleDownloadPDF(invoice._id)}
-                        className="text-gray-400 hover:text-purple-400 text-sm transition"
+                        className="text-gray-400 hover:text-purple-400 text-sm transition rounded-full border bg-transparent "
                       >
                         PDF
                       </button>
                       <button
                         onClick={() => handleDelete(invoice._id)}
-                        className="text-gray-400 hover:text-red-400 text-sm transition"
+                        className="text-gray-400 hover:text-red-400 text-sm transition rounded-full border bg-transparent "
                       >
                         Delete
                       </button>
