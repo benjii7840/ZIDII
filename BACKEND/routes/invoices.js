@@ -79,7 +79,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 });
 
 //
-// ✅ DOWNLOAD PDF (PUBLIC WITH TOKEN)
+// ✅ DOWNLOAD PDF (PROFESSIONAL DESIGN)
 //
 router.get("/:id/pdf", async (req, res) => {
   try {
@@ -101,23 +101,117 @@ router.get("/:id/pdf", async (req, res) => {
 
     doc.pipe(res);
 
-    doc.fontSize(28).text("INVOICE", { align: "right" });
+    // ===== HEADER =====
+    doc.fontSize(26).font("Helvetica-Bold").text("INVOICE", { align: "right" });
+
+    doc.moveDown(0.5);
+
+    doc
+      .fontSize(10)
+      .font("Helvetica")
+      .text("Zidi Business Finance")
+      .text("Nairobi, Kenya")
+      .text("support@zidi.com");
+
     doc.moveDown();
 
-    doc.text(`Client: ${invoice.clientName}`);
-    doc.text(`Email: ${invoice.clientEmail || "-"}`);
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown();
+
+    // ===== CLIENT + DETAILS =====
+    const startY = doc.y;
+
+    doc.fontSize(11).font("Helvetica-Bold").text("Bill To:", 50, startY);
+
+    doc
+      .font("Helvetica")
+      .text(invoice.clientName, 50)
+      .text(invoice.clientEmail || "-")
+      .text(invoice.clientPhone || "-");
+
+    doc.font("Helvetica-Bold").text("Invoice Details:", 350, startY);
+
+    doc
+      .font("Helvetica")
+      .text(`Invoice ID: ${invoice._id}`, 350)
+      .text(
+        `Due Date: ${
+          invoice.dueDate
+            ? new Date(invoice.dueDate).toLocaleDateString()
+            : "N/A"
+        }`,
+      )
+      .text(`Status: ${invoice.status.toUpperCase()}`);
+
+    doc.moveDown(2);
+
+    // ===== TABLE HEADER =====
+    const tableTop = doc.y;
+
+    doc.font("Helvetica-Bold");
+    doc.text("Description", 50, tableTop);
+    doc.text("Qty", 300, tableTop);
+    doc.text("Price", 370, tableTop);
+    doc.text("Total", 450, tableTop);
+
+    doc.moveDown(0.5);
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+
+    // ===== ITEMS =====
+    doc.font("Helvetica");
 
     invoice.items.forEach((item) => {
-      doc.text(
-        `${item.description} - ${item.quantity} x ${item.price} = ${
-          item.quantity * item.price
-        }`,
-      );
+      const y = doc.y + 5;
+      const total = item.quantity * item.price;
+
+      doc.text(item.description, 50, y, { width: 240 });
+      doc.text(item.quantity.toString(), 300, y);
+      doc.text(`KES ${item.price.toLocaleString()}`, 370, y);
+      doc.text(`KES ${total.toLocaleString()}`, 450, y);
+
+      doc.moveDown();
     });
 
     doc.moveDown();
-    doc.text(`Total: KES ${invoice.total}`);
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown();
+
+    // ===== TOTALS =====
+    doc.font("Helvetica");
+
+    doc.text(
+      `Subtotal: KES ${invoice.subtotal?.toLocaleString()}`,
+      350,
+      doc.y,
+      { align: "right" },
+    );
+
+    doc.text(
+      `Tax (${invoice.tax}%): KES ${(
+        (invoice.subtotal * invoice.tax) /
+        100
+      ).toLocaleString()}`,
+      350,
+      doc.y,
+      { align: "right" },
+    );
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(14)
+      .text(`Total: KES ${invoice.total?.toLocaleString()}`, 350, doc.y, {
+        align: "right",
+      });
+
+    doc.moveDown(2);
+
+    // ===== FOOTER =====
+    doc
+      .fontSize(10)
+      .font("Helvetica-Oblique")
+      .text("Thank you for your business!", {
+        align: "center",
+      });
 
     doc.end();
   } catch (error) {
