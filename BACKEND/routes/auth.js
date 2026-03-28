@@ -35,20 +35,24 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const returnUser = await User.findOne({ email });
-  if (!returnUser) {
-    return res.status(400).json({ message: "Invalid email or password" });
+  try {
+    const { email, password } = req.body;
+    const returnUser = await User.findOne({ email });
+    if (!returnUser) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    const isMatch = await bcrypt.compare(password, returnUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    const token = jwt.sign({ id: returnUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Login error:", error.message);
+    res.status(500).json({ message: error.message });
   }
-  const isMatch = await bcrypt.compare(password, returnUser.password);
-  if (!isMatch) {
-    return res.status(400).json({ message: "Invalid email or password" });
-  }
-  const token = jwt.sign({ id: returnUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-
-  res.status(200).json({ token });
 });
 router.get("/me", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user._id).select("-password");
