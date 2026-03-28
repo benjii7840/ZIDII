@@ -34,7 +34,7 @@ router.post("/register", async (req, res) => {
   res.status(201).json({ token });
 });
 
-router.post("/logIn", async (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const returnUser = await User.findOne({ email });
   if (!returnUser) {
