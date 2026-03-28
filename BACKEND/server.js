@@ -8,6 +8,8 @@ import expenseRouter from "./routes/expenses.js";
 import dashboardRouter from "./routes/dashboard.js";
 import aiRouter from "./routes/ai.js";
 
+console.log("Routes loaded successfully");
+
 dotenv.config();
 
 const app = express();
@@ -31,4 +33,8 @@ app.use("/api/ai", aiRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
 });
