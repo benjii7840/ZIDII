@@ -1,19 +1,37 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { api } from "../utils/api";
-import { useNavigate } from "react-router-dom";
 
-const navigate = useNavigate();
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get("/api/invoices").then((data) => {
-      setInvoices(data);
+      setInvoices(Array.isArray(data) ? data : []);
       setLoading(false);
     });
   }, []);
+
+  async function handleDelete(id) {
+    await api.delete(`/api/invoices/${id}`);
+    setInvoices(invoices.filter((inv) => inv._id !== id));
+  }
+
+  async function handleStatusChange(id, status) {
+    const updated = await api.put(`/api/invoices/${id}`, { status });
+    setInvoices(invoices.map((inv) => (inv._id === id ? updated : inv)));
+  }
+
+  function handleDownloadPDF(id) {
+    const token = localStorage.getItem("token");
+    window.open(
+      `http://localhost:5002/api/invoices/${id}/pdf?token=${token}`,
+      "_blank",
+    );
+  }
 
   const statusColor = {
     draft: "text-gray-400 bg-gray-500/10 border-gray-500/20",
@@ -27,8 +45,8 @@ const Invoices = () => {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold text-white">Invoices</h1>
           <button
-            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
             onClick={() => navigate("/invoices/new")}
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
           >
             + New Invoice
           </button>
@@ -86,22 +104,34 @@ const Invoices = () => {
                       KES {invoice.total?.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`text-xs font-medium px-3 py-1 rounded-full border ${statusColor[invoice.status]}`}
+                      <select
+                        value={invoice.status}
+                        onChange={(e) =>
+                          handleStatusChange(invoice._id, e.target.value)
+                        }
+                        className={`text-xs font-medium px-3 py-1 rounded-full border bg-transparent cursor-pointer ${statusColor[invoice.status]}`}
                       >
-                        {invoice.status}
-                      </span>
+                        <option value="draft">Draft</option>
+                        <option value="sent">Sent</option>
+                        <option value="paid">Paid</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 text-gray-400 text-sm">
                       {invoice.dueDate
                         ? new Date(invoice.dueDate).toLocaleDateString()
                         : "--"}
                     </td>
-                    <td className="px-6 py-4">
-                      <button className="text-gray-400 hover:text-purple-400 text-sm transition mr-3">
-                        View
+                    <td className="px-6 py-4 flex items-center gap-3">
+                      <button
+                        onClick={() => handleDownloadPDF(invoice._id)}
+                        className="text-gray-400 hover:text-purple-400 text-sm transition"
+                      >
+                        PDF
                       </button>
-                      <button className="text-gray-400 hover:text-red-400 text-sm transition">
+                      <button
+                        onClick={() => handleDelete(invoice._id)}
+                        className="text-gray-400 hover:text-red-400 text-sm transition"
+                      >
                         Delete
                       </button>
                     </td>

@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Invoices from "./pages/Invoices";
 import Expenses from "./pages/Expenses";
 import AIChat from "./pages/AIChat";
+import CreateInvoice from "./pages/CreateInvoice";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -15,6 +16,15 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   return (
     <Routes>
+      <Route
+        path="/invoices/new"
+        element={
+          <ProtectedRoute>
+            <CreateInvoice />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route
