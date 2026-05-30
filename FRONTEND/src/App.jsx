@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import Landing from "./pages/Landing";
 import { useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -16,15 +17,7 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   return (
     <Routes>
-      <Route
-        path="/invoices/new"
-        element={
-          <ProtectedRoute>
-            <CreateInvoice />
-          </ProtectedRoute>
-        }
-      />
-
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route
@@ -44,6 +37,14 @@ const App = () => {
         }
       />
       <Route
+        path="/invoices/new"
+        element={
+          <ProtectedRoute>
+            <CreateInvoice />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/expenses"
         element={
           <ProtectedRoute>
@@ -59,7 +60,6 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/dashboard" />} />
     </Routes>
   );
 };
