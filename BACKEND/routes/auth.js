@@ -8,30 +8,35 @@ const router = express.Router();
 
 // REGISTER
 router.post("/register", async (req, res) => {
-  // 1. Get data from request body
-  const { name, email, password, businessName, businessPhone } = req.body;
-  // 2. Check if user already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ message: "Email already in use." });
-  }
+  try {
+    // 1. Get data from request body
+    const { name, email, password, businessName, businessPhone } = req.body;
+    // 2. Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use." });
+    }
 
-  // 3. Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-  // 4. Create the user
-  const newUser = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    businessName,
-    businessPhone,
-  });
-  // 5. Create a token
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-  // 6. Send back the token
-  res.status(201).json({ token });
+    // 3. Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // 4. Create the user
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      businessName,
+      businessPhone,
+    });
+    // 5. Create a token
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    // 6. Send back the token
+    res.status(201).json({ token });
+  } catch (error) {
+    console.error("Register error:", error.message);
+    res.status(500).json({ message: error.message });
+  }
 });
 
 router.post("/login", async (req, res) => {
