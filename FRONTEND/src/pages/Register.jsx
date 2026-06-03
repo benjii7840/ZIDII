@@ -44,12 +44,12 @@ const Register = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white">
       {/* LEFT SIDE */}
-      <div className="flex-1 flex flex-col justify-center px-6 md:px-16 py-10">
+      <div className="flex-1 flex flex-col justify-center px-6 md:px-16 py-10 bg-gradient-to-r from-[#eef2f7] to-[#f4d6cf]">
         {/* Logo */}
         <h1 className="text-xl font-semibold mb-6">ZIDI</h1>
 
         {/* Title */}
-        <h2 className="text-3xl font-semibold text-gray-800">
+        <h2 className="text-2xl font-semibold text-gray-800">
           Create your business account
         </h2>
 
@@ -131,13 +131,13 @@ const Register = () => {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="hidden md:flex flex-1 bg-gradient-to-br from-blue-600 to-indigo-600 text-white items-center justify-center p-10">
+      <div className="hidden md:flex flex-1 bg-gradient-to-r from-[#eef2f7] to-[#f4d6cf] text-white items-center justify-center p-10">
         <div className="max-w-md">
-          <h2 className="text-3xl font-semibold mb-4">
+          <h2 className="text-3xl font-semibold mb-4 text-black/80">
             Effortlessly manage your team and operations.
           </h2>
 
-          <p className="text-white/80 mb-6">
+          <p className="text-black/80 mb-6">
             Log in to access your dashboard and manage your business.
           </p>
 
