@@ -58,7 +58,7 @@ const Register = () => {
                 label: "Full Name",
                 value: name,
                 setter: setName,
-                placeholder: "Benjamin Baraza",
+                placeholder: "John Doe",
                 type: "text",
               },
               {
@@ -79,7 +79,7 @@ const Register = () => {
                 label: "Business Name",
                 value: businessName,
                 setter: setBusinessName,
-                placeholder: "Baraza Tech",
+                placeholder: "Google Tech",
                 type: "text",
               },
               {
