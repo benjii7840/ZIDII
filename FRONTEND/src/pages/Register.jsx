@@ -112,13 +112,14 @@ const Register = () => {
           ))}
 
           {/* Button */}
-          <button
+          <Link
+            to="/dashboard"
             onClick={handleRegister}
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition"
           >
             {loading ? "Creating account..." : "Create Account"}
-          </button>
+          </Link>
 
           {/* Login link */}
           <p className="text-sm text-gray-500 mt-4">
