@@ -116,7 +116,7 @@ const Register = () => {
             to="/dashboard"
             onClick={handleRegister}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg mt-4 hover:bg-blue-700 transition"
           >
             {loading ? "Creating account..." : "Create Account"}
           </Link>
