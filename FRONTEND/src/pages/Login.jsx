@@ -31,12 +31,12 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <div className="min-h-screen  bg-gradient-to-r from-[#eef2f7] to-[#f4d6cf] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Zidi</h1>
-          <p className="text-gray-400">Sign in to your account</p>
+          <h1 className="text-4xl font-bold text-black mb-2">Zidi</h1>
+          <p className="text-black">Sign in to your account</p>
         </div>
 
         {/* Card */}
@@ -47,19 +47,19 @@ const Login = () => {
             </div>
           )}
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 space-y-4 max-w-md text-black">
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Email</label>
+              <label className="text-sm text-black mb-1 block">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@business.com"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-blue-500 rounded-lg px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">
+              <label className="text-sm text-gray-400 mb-1 block ">
                 Password
               </label>
               <input
@@ -67,7 +67,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-blue-500 rounded-lg px-4 py-3 text-black placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
               />
             </div>
             <button
