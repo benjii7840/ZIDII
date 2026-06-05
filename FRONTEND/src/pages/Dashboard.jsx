@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 const StatCard = ({ label, value, prefix = "KES", color = "text-white" }) => (
-  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+  <div className="bg-blue-500 border border-white/10 rounded-2xl p-6">
     <p className="text-gray-400 text-sm mb-2">{label}</p>
     <p className={`text-3xl font-bold ${color}`}>
       {prefix} {value?.toLocaleString() ?? "--"}
