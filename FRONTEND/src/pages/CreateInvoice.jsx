@@ -68,7 +68,7 @@ const CreateInvoice = () => {
 
         {/* Client Details */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
-          <h2 className="text-white font-semibold mb-4">Client Details</h2>
+          <h2 className="text-black font-semibold mb-4">Client Details</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
@@ -91,40 +91,34 @@ const CreateInvoice = () => {
               },
             ].map(({ label, value, setter, placeholder }) => (
               <div key={label}>
-                <label className="text-gray-400 text-sm mb-1 block">
-                  {label}
-                </label>
+                <label className="text-black text-sm mb-1 block">{label}</label>
                 <input
                   type="text"
                   value={value}
                   onChange={(e) => setter(e.target.value)}
                   placeholder={placeholder}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-white/5 border border-black rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
                 />
               </div>
             ))}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div>
-              <label className="text-gray-400 text-sm mb-1 block">
-                Due Date
-              </label>
+              <label className="text-black text-sm mb-1 block">Due Date</label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-black rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-purple-500 transition"
               />
             </div>
             <div>
-              <label className="text-gray-400 text-sm mb-1 block">
-                Tax (%)
-              </label>
+              <label className="text-black text-sm mb-1 block">Tax (%)</label>
               <input
                 type="number"
                 value={tax}
                 onChange={(e) => setTax(Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-white/5 border border-black rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-purple-500 transition"
               />
             </div>
           </div>
@@ -144,7 +138,7 @@ const CreateInvoice = () => {
                       updateItem(index, "description", e.target.value)
                     }
                     placeholder="Description"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                    className="w-full bg-white/5 border border-black rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
                   />
                 </div>
                 <div className="col-span-2">
@@ -155,7 +149,7 @@ const CreateInvoice = () => {
                       updateItem(index, "quantity", Number(e.target.value))
                     }
                     placeholder="Qty"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                    className="w-full bg-white/5 border border-black rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
                   />
                 </div>
                 <div className="col-span-3">
@@ -166,7 +160,7 @@ const CreateInvoice = () => {
                       updateItem(index, "price", Number(e.target.value))
                     }
                     placeholder="Price"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                    className="w-full bg-white/5 border border-black rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
                   />
                 </div>
                 <div className="col-span-1 text-right text-gray-400 text-sm">
