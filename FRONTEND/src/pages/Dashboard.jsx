@@ -4,8 +4,6 @@ import { api } from "../utils/api.js";
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -16,13 +14,12 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { TrendingUp, DollarSign, FileText, AlertCircle } from "lucide-react";
+import { TrendingUp, DollarSign, FileText } from "lucide-react";
 
 const StatCard = ({
   label,
   value,
   prefix = "KES",
-  color = "text-white",
   trend = "+15.9%",
   description = "",
   icon: Icon,
@@ -32,13 +29,15 @@ const StatCard = ({
       <p className="text-gray-600 text-sm">{label}</p>
       {Icon && <Icon className="w-5 h-5 text-gray-400" />}
     </div>
-    <p className={`text-3xl font-bold text-gray-900 mb-3`}>
+    <p className="text-3xl font-bold text-gray-900 mb-3">
       {value?.toLocaleString() ?? "--"}
     </p>
     <div className="flex justify-between items-center">
       <p className="text-xs text-gray-500">{description}</p>
       <span
-        className={`text-xs font-semibold ${trend.includes("-") ? "text-red-600" : "text-green-600"}`}
+        className={`text-xs font-semibold ${
+          trend.includes("-") ? "text-red-600" : "text-green-600"
+        }`}
       >
         {trend}
       </span>
@@ -54,58 +53,82 @@ const Dashboard = () => {
   useEffect(() => {
     api.get("/api/dashboard").then(setStats);
     api.get("/api/invoices").then((data) => {
-      setInvoices(Array.isArray(data) ? data.slice(0, 5) : []);
+      setInvoices(Array.isArray(data) ? data : []);
     });
     api.get("/api/expenses").then((data) => {
       setExpenses(Array.isArray(data) ? data : []);
     });
   }, []);
 
-  // Monthly Revenue & Expense Trend
-  const monthlyData = [
-    { month: "Jan", revenue: 45000, expenses: 32000 },
-    { month: "Feb", revenue: 52000, expenses: 38000 },
-    { month: "Mar", revenue: 48000, expenses: 35000 },
-    { month: "Apr", revenue: 61000, expenses: 40000 },
-    { month: "May", revenue: 55000, expenses: 42000 },
-    { month: "Jun", revenue: 67000, expenses: 45000 },
-  ];
-
-  // Invoice Status Breakdown
-  const invoiceStatusData = [
-    {
-      name: "Paid",
-      value: invoices.filter((inv) => inv.status === "paid").length || 2,
-      color: "#10b981",
-    },
-    {
-      name: "Sent",
-      value: invoices.filter((inv) => inv.status === "sent").length || 3,
-      color: "#3b82f6",
-    },
-    {
-      name: "Draft",
-      value: invoices.filter((inv) => inv.status === "draft").length || 1,
-      color: "#9ca3af",
-    },
-  ];
-
-  // Expense Categories
-  const expensesByCategory = [
-    { category: "Food", amount: 15000, count: 8 },
-    { category: "Transport", amount: 8500, count: 5 },
-    { category: "Utilities", amount: 12000, count: 3 },
-    { category: "Supplies", amount: 22000, count: 12 },
-    { category: "Marketing", amount: 18000, count: 4 },
-  ];
-
-  const totalRevenue = stats?.totalRevenue || 0;
+  // Calculate totals from actual data
+  const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
   const profit = totalRevenue - totalExpenses;
   const paidInvoices = invoices.filter((inv) => inv.status === "paid").length;
-  const pendingInvoices = invoices.filter(
-    (inv) => inv.status !== "paid",
-  ).length;
+  const sentInvoices = invoices.filter((inv) => inv.status === "sent").length;
+  const draftInvoices = invoices.filter((inv) => inv.status === "draft").length;
+  const pendingInvoices = sentInvoices + draftInvoices;
+
+  // Build expense categories from actual data
+  const expensesByCategory = expenses.reduce((acc, expense) => {
+    const existing = acc.find((cat) => cat.category === expense.category);
+    if (existing) {
+      existing.amount += expense.amount;
+      existing.count += 1;
+    } else {
+      acc.push({
+        category:
+          expense.category.charAt(0).toUpperCase() + expense.category.slice(1),
+        amount: expense.amount,
+        count: 1,
+      });
+    }
+    return acc;
+  }, []);
+
+  // Invoice Status Data
+  const invoiceStatusData = [
+    { name: "Paid", value: paidInvoices, color: "#10b981" },
+    { name: "Sent", value: sentInvoices, color: "#3b82f6" },
+    { name: "Draft", value: draftInvoices, color: "#9ca3af" },
+  ].filter((item) => item.value > 0);
+
+  // Revenue vs Expenses by month (from actual invoices/expenses)
+  const monthlyData = invoices.reduce((acc, invoice) => {
+    const month = new Date(invoice.createdAt || new Date()).toLocaleDateString(
+      "en-US",
+      { month: "short" },
+    );
+    const existing = acc.find((m) => m.month === month);
+
+    if (existing) {
+      existing.revenue += invoice.total || 0;
+    } else {
+      acc.push({
+        month,
+        revenue: invoice.total || 0,
+        expenses: 0,
+      });
+    }
+    return acc;
+  }, []);
+
+  expenses.forEach((expense) => {
+    const month = new Date(expense.createdAt || new Date()).toLocaleDateString(
+      "en-US",
+      { month: "short" },
+    );
+    const existing = monthlyData.find((m) => m.month === month);
+    if (existing) {
+      existing.expenses += expense.amount;
+    } else {
+      monthlyData.push({
+        month,
+        revenue: 0,
+        expenses: expense.amount,
+      });
+    }
+  });
 
   return (
     <Layout>
@@ -121,14 +144,14 @@ const Dashboard = () => {
             <StatCard
               label="Total Revenue"
               value={totalRevenue}
-              trend="+12.5%"
+              trend={invoices.length > 0 ? "+12.5%" : "No data"}
               description="All invoices"
               icon={TrendingUp}
             />
             <StatCard
               label="Total Expenses"
               value={totalExpenses}
-              trend="+8.2%"
+              trend={expenses.length > 0 ? "+8.2%" : "No data"}
               description="All spending"
               icon={DollarSign}
             />
@@ -151,116 +174,147 @@ const Dashboard = () => {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Revenue vs Expenses Chart */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Revenue vs Expenses
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#9ca3af"
-                    style={{ fontSize: "12px" }}
-                  />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: "12px" }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="revenue" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-                  <Bar
-                    dataKey="expenses"
-                    fill="#ef4444"
-                    radius={[8, 8, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {monthlyData.length > 0 ? (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Revenue vs Expenses
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis
+                      dataKey="month"
+                      stroke="#9ca3af"
+                      style={{ fontSize: "12px" }}
+                    />
+                    <YAxis stroke="#9ca3af" style={{ fontSize: "12px" }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="revenue"
+                      fill="#3b82f6"
+                      radius={[8, 8, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="expenses"
+                      fill="#ef4444"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex items-center justify-center h-80">
+                <p className="text-gray-500">
+                  No data yet. Create invoices or add expenses.
+                </p>
+              </div>
+            )}
 
             {/* Invoice Status Chart */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Invoice Status
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={invoiceStatusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    dataKey="value"
-                  >
-                    {invoiceStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-6 space-y-2">
-                {invoiceStatusData.map((item) => (
-                  <div
-                    key={item.name}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="text-gray-600">{item.name}</span>
+            {invoiceStatusData.length > 0 ? (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Invoice Status
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={invoiceStatusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      dataKey="value"
+                    >
+                      {invoiceStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-6 space-y-2">
+                  {invoiceStatusData.map((item) => (
+                    <div
+                      key={item.name}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: item.color }}
+                        ></div>
+                        <span className="text-gray-600">{item.name}</span>
+                      </div>
+                      <span className="font-semibold text-gray-900">
+                        {item.value}
+                      </span>
                     </div>
-                    <span className="font-semibold text-gray-900">
-                      {item.value}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex items-center justify-center h-80">
+                <p className="text-gray-500">No invoices yet.</p>
+              </div>
+            )}
           </div>
 
           {/* Bottom Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Top Expenses Categories */}
-            <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Expenses by Category
-              </h3>
-              <div className="space-y-3">
-                {expensesByCategory.map((item, idx) => (
-                  <div key={idx}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-600">
-                        {item.category}
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        KES {item.amount.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-blue-600 rounded-full"
-                        style={{
-                          width: `${(item.amount / Math.max(...expensesByCategory.map((e) => e.amount))) * 100}%`,
-                        }}
-                      ></div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {item.count} transactions
-                    </p>
-                  </div>
-                ))}
+            {/* Expenses Categories */}
+            {expensesByCategory.length > 0 ? (
+              <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Expenses by Category
+                </h3>
+                <div className="space-y-3">
+                  {expensesByCategory
+                    .sort((a, b) => b.amount - a.amount)
+                    .map((item, idx) => {
+                      const max = Math.max(
+                        ...expensesByCategory.map((e) => e.amount),
+                      );
+                      return (
+                        <div key={idx}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm text-gray-600">
+                              {item.category}
+                            </span>
+                            <span className="text-sm font-semibold text-gray-900">
+                              KES {item.amount.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-600 rounded-full"
+                              style={{
+                                width: `${(item.amount / max) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {item.count} transaction{item.count > 1 ? "s" : ""}
+                          </p>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex items-center justify-center">
+                <p className="text-gray-500">No expenses yet.</p>
+              </div>
+            )}
 
-            {/* Quick Actions & Insights */}
+            {/* Quick Insights */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Insights
@@ -287,9 +341,7 @@ const Dashboard = () => {
                   </p>
                 </div>
                 <div className="bg-white rounded-lg p-3">
-                  <p className="text-sm text-gray-600">
-                    Invoice Collection Rate
-                  </p>
+                  <p className="text-sm text-gray-600">Collection Rate</p>
                   <p className="text-2xl font-bold text-green-600">
                     {invoices.length > 0
                       ? Math.round((paidInvoices / invoices.length) * 100)
